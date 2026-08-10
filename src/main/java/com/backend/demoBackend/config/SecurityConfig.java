@@ -42,7 +42,7 @@ public class SecurityConfig {
         // http.authorizeHttpRequests(auth -> auth.anyRequest().permitAll());
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/admin/login", "/api/users/login", "/api/users/signup", "/api/admin/add",
-                        "/api/category/getAll")
+                        "/api/category/getAll", "/api/products/getProducts/1")
                 .permitAll()
                 .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())

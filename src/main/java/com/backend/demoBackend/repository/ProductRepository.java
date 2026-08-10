@@ -51,7 +51,7 @@ public class ProductRepository {
                                         .addValue("I_QUANTITY", prodRequest.getQuantity())
                                         .addValue("I_PRICE", prodRequest.getPrice())
                                         .addValue("I_PRODCATEGORY", prodRequest.getCategoryId())
-                                        .addValue("I_PRODIMAGE", "");
+                                        .addValue("I_PRODBRAND", prodRequest.getProductBrand());
 
                         Map<String, Object> result = jdbcCall.execute(params);
                         String errMsg = Objects.toString(result.get("O_ERRMSG"), "");
@@ -112,14 +112,14 @@ public class ProductRepository {
 
                         if (errMsg.isEmpty() || errMsg.equals("")) {
                                 // System.out.println("Here");
-                                System.out.println(result.get("O_PRODUCT_CURSOR"));
+                                // System.out.println(result.get("O_PRODUCT_CURSOR"));
                                 List<Product> products = (List<Product>) result.get("O_PRODUCT_CURSOR");
                                 response.prodList = products;
                         }
 
                         response.serviceResult.setErrorMsg(errMsg);
                         response.serviceResult.setErrorCode((String) result.get("O_ERRCODE"));
-                        System.out.println(response);
+                        // System.out.println(response);
 
                 } catch (Exception e) {
                         response.serviceResult

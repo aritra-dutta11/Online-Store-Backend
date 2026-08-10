@@ -1,5 +1,6 @@
 package com.backend.demoBackend.controller;
 
+import org.springframework.http.MediaType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -8,7 +9,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.backend.demoBackend.model.Product.CreateProductRequest;
 import com.backend.demoBackend.model.Product.CreateProductResponse;
@@ -51,15 +54,17 @@ public class ProductController {
     // return productService.deleteProduct(prodId);
     // }
 
-    @PostMapping("/create")
-    public ResponseEntity<CreateProductResponse> addNewProduct(@RequestBody CreateProductRequest prodRequest) {
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<CreateProductResponse> addNewProduct(
+            @RequestPart("productReq") CreateProductRequest prodRequest,
+            @RequestPart("productImages") MultipartFile[] productImages) {
         // System.out.println(prodRequest.toString());
         CreateProductResponse prodRes = productService.createNewProduct(prodRequest);
 
         if ("".equals(prodRes.serviceResult.getErrorMsg())) {
             return ResponseEntity.ok(prodRes);
         }
-        return ResponseEntity.badRequest().body(prodRes);
+        return ResponseEntity.ok().body(prodRes);
     }
 
     @GetMapping("/getProducts/{pageNo}")
@@ -71,7 +76,7 @@ public class ProductController {
         if ("".equals(prodRes.serviceResult.getErrorMsg())) {
             return ResponseEntity.ok(prodRes);
         }
-        return ResponseEntity.badRequest().body(prodRes);
+        return ResponseEntity.ok().body(prodRes);
     }
 
     @GetMapping("/getProducts/{searchKey}/{pageNo}")
@@ -85,7 +90,7 @@ public class ProductController {
         if ("".equals(prodRes.serviceResult.getErrorMsg())) {
             return ResponseEntity.ok(prodRes);
         }
-        return ResponseEntity.badRequest().body(prodRes);
+        return ResponseEntity.ok().body(prodRes);
     }
 
     @PostMapping("/reviews/add")
@@ -97,7 +102,7 @@ public class ProductController {
         if ("".equals(prodRes.serviceResult.getErrorMsg())) {
             return ResponseEntity.ok(prodRes);
         }
-        return ResponseEntity.badRequest().body(prodRes);
+        return ResponseEntity.ok().body(prodRes);
     }
 
     @GetMapping("/getProduct/{prodId}")
@@ -108,7 +113,7 @@ public class ProductController {
         if ("".equals(prodRes.serviceResult.getErrorMsg())) {
             return ResponseEntity.ok(prodRes);
         }
-        return ResponseEntity.badRequest().body(prodRes);
+        return ResponseEntity.ok().body(prodRes);
     }
 
 }

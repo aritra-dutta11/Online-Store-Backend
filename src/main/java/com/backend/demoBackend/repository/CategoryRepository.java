@@ -13,6 +13,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
 import com.backend.demoBackend.RowMapper.CategoryRowMapper;
+import com.backend.demoBackend.model.ImageUploadResponse;
 import com.backend.demoBackend.model.PicrdResponse;
 import com.backend.demoBackend.model.Category.Category;
 import com.backend.demoBackend.model.Category.CategoryCreateRequest;
@@ -30,7 +31,8 @@ public class CategoryRepository {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public CategoryCreateResponse handleCreateCategory(CategoryCreateRequest categoryReq, PicrdResponse picrdResponse) {
+    public CategoryCreateResponse handleCreateCategory(CategoryCreateRequest categoryReq,
+            ImageUploadResponse imgUploadRes) {
 
         CategoryCreateResponse response = new CategoryCreateResponse();
 
@@ -41,9 +43,9 @@ public class CategoryRepository {
             SqlParameterSource params = new MapSqlParameterSource()
                     .addValue("IO_CATNAME", categoryReq.getCategoryName())
                     .addValue("I_CATDESC", categoryReq.getCategoryDesc())
-                    .addValue("I_IMG_PAGEURL", picrdResponse.getPage_url())
-                    .addValue("I_IMG_URL", picrdResponse.getImage_url())
-                    .addValue("I_IMG_DELETEURL", picrdResponse.getDelete_url());
+                    .addValue("I_IMG_PAGEURL", imgUploadRes.picrdResponse.getPage_url())
+                    .addValue("I_IMG_URL", imgUploadRes.picrdResponse.getImage_url())
+                    .addValue("I_IMG_DELETEURL", imgUploadRes.picrdResponse.getDelete_url());
 
             Map<String, Object> result = jdbcCall.execute(params);
             String errMsg = Objects.toString(result.get("O_ERRMSG"), "");

@@ -3,6 +3,7 @@ package com.backend.demoBackend.service;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.backend.demoBackend.model.ImageUploadResponse;
 import com.backend.demoBackend.model.PicrdResponse;
 import com.backend.demoBackend.model.Service.ServiceResult;
 
@@ -20,29 +21,33 @@ public class ImageUploadService {
     private String picrdBaseURL;
     private final RestClient restClient = RestClient.create();
 
-    public PicrdResponse uploadImage(MultipartFile image) throws Exception {
-        PicrdResponse response = new PicrdResponse();
+    public ImageUploadResponse uploadImage(MultipartFile image) throws Exception {
+        ImageUploadResponse response = new ImageUploadResponse();
+        try {
+            ByteArrayResource resource = new ByteArrayResource(image.getBytes()) {
+                @Override
+                public String getFilename() {
+                    return image.getOriginalFilename();
+                }
+            };
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
 
-        ByteArrayResource resource = new ByteArrayResource(image.getBytes()) {
-            @Override
-            public String getFilename() {
-                return image.getOriginalFilename();
-            }
-        };
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-
-        body.add("file", resource);
-        body.add("visibility", "public");
-        String apiUrl = picrdBaseURL + "/api/upload";
-        System.out.println(apiUrl);
-        response = restClient.post()
-                .uri(apiUrl)
-                .contentType(MediaType.MULTIPART_FORM_DATA)
-                .body(body)
-                .retrieve()
-                .body(PicrdResponse.class);
-        // response.serviceResult = new ServiceResult();
-        // response.serviceResult.setErrorCode("");
+            body.add("file", resource);
+            body.add("visibility", "public");
+            String apiUrl = picrdBaseURL + "/api/upload";
+            // System.out.println(apiUrl);
+            response.picrdResponse = restClient.post()
+                    .uri(apiUrl)
+                    .contentType(MediaType.MULTIPART_FORM_DATA)
+                    .body(body)
+                    .retrieve()
+                    .body(PicrdResponse.class);
+            response.serviceResult.setErrorMsg("");
+            response.serviceResult.setErrorCode("");
+        } catch (Exception e) {
+            response.serviceResult.setErrorMsg("Exception while uploading image - " + e.getMessage());
+            response.serviceResult.setErrorCode("1");
+        }
 
         return response;
     };

@@ -22,5 +22,8 @@ public class Product {
     private String prodDesc;
     private String category;
     private double avgRating;
+    private String primary_image;
+    private String productBrand;
+    private List<String> images = new ArrayList<>();
     public List<ProductReview> reviews = new ArrayList<>();
 }

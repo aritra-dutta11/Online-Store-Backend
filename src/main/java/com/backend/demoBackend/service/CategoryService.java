@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.backend.demoBackend.model.ImageUploadResponse;
 import com.backend.demoBackend.model.PicrdResponse;
 import com.backend.demoBackend.model.Category.CategoryCreateRequest;
 import com.backend.demoBackend.model.Category.CategoryCreateResponse;
@@ -22,10 +23,10 @@ public class CategoryService {
     public CategoryCreateResponse createCategory(CategoryCreateRequest categoryReq, MultipartFile categoryImage) {
         CategoryCreateResponse catRes = new CategoryCreateResponse();
         try {
-            PicrdResponse picrdRes = imageUploadService.uploadImage(categoryImage);
-            System.out.println(picrdRes.toString());
-            if (!("".equals(picrdRes.getImage_id()))) {
-                catRes = catRepo.handleCreateCategory(categoryReq, picrdRes);
+            ImageUploadResponse imageUploadRes = imageUploadService.uploadImage(categoryImage);
+            System.out.println(imageUploadRes.toString());
+            if ("".equals(imageUploadRes.serviceResult.getErrorMsg())) {
+                catRes = catRepo.handleCreateCategory(categoryReq, imageUploadRes);
             }
 
         } catch (Exception e) {

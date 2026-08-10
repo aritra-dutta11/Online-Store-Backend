@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 @Component
 public class CreateProductRequest {
     private String productName;
+    private String productBrand;
     private String categoryId;
     private String productDesc;
     private int price;
