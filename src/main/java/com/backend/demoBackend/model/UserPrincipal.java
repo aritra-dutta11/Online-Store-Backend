@@ -1,11 +1,9 @@
 package com.backend.demoBackend.model;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 import org.jspecify.annotations.Nullable;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -13,9 +11,7 @@ import org.springframework.stereotype.Component;
 
 import com.backend.demoBackend.model.User.User;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 @Data
 @Component

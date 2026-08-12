@@ -18,6 +18,7 @@ import org.springframework.stereotype.Repository;
 
 import com.backend.demoBackend.RowMapper.ProductReviewRowMapper;
 import com.backend.demoBackend.RowMapper.ProductRowMapper;
+import com.backend.demoBackend.model.PicrdResponse;
 import com.backend.demoBackend.model.Product.CreateProductRequest;
 import com.backend.demoBackend.model.Product.CreateProductResponse;
 import com.backend.demoBackend.model.Product.FilterRequest;
@@ -38,7 +39,8 @@ public class ProductRepository {
                 this.jdbcTemplate = jdbcTemplate;
         }
 
-        public CreateProductResponse createNewProduct(CreateProductRequest prodRequest) {
+        public CreateProductResponse createNewProduct(CreateProductRequest prodRequest,
+                        List<PicrdResponse> picrdResponseList) {
                 CreateProductResponse response = new CreateProductResponse();
 
                 try {
@@ -55,10 +57,22 @@ public class ProductRepository {
 
                         Map<String, Object> result = jdbcCall.execute(params);
                         String errMsg = Objects.toString(result.get("O_ERRMSG"), "");
+                        String productId = Objects.toString(result.get("O_PRODID"), "");
+                        if ((errMsg.isEmpty() || errMsg.equals("")) && !productId.equals("")) {
+                                errMsg += handleSaveProductImages(productId, picrdResponseList);
+                        }
                         if (errMsg.isEmpty() || errMsg.equals("")) {
                                 response.setProductName((String) result.get("IO_PRODNAME"));
                                 response.setProductId((String) result.get("O_PRODID"));
                                 response.setProductDesc((String) result.get("IO_PRODDESC"));
+                        } else {
+                                String sql = "DELETE FROM PRODUCT_IMAGES WHERE PRODUCTID = ?";
+
+                                jdbcTemplate.update(sql, productId);
+
+                                sql = "DELETE FROM PRODUCT WHERE PRODUCTID = ?";
+                                jdbcTemplate.update(sql, productId);
+                                // Delete the data from the table.
                         }
                         response.serviceResult.setErrorMsg(errMsg);
                         response.serviceResult.setErrorCode((String) result.get("O_ERRCODE"));
@@ -70,6 +84,29 @@ public class ProductRepository {
                 }
 
                 return response;
+        }
+
+        public String handleSaveProductImages(String productId, List<PicrdResponse> handleSaveProductImages) {
+                String errMsg = "";
+                String qry = """
+                                INSERT INTO PRODUCT_IMAGES(IMAGEID, PRODUCTID, IMAGE_URL, IMAGE_PAGEURL, IMAGE_DELETEURL, IS_PRIMARY_IMAGE, CREATEDAT)
+                                VALUES (?,?,?,?,?,?,SYSDATE)
+                                """;
+                try {
+                        jdbcTemplate.batchUpdate(qry, handleSaveProductImages, handleSaveProductImages.size(),
+                                        (ps, data) -> {
+                                                ps.setString(1, data.getImage_id());
+                                                ps.setString(2, productId);
+                                                ps.setString(3, data.getImage_url());
+                                                ps.setString(4, data.getPage_url());
+                                                ps.setString(5, data.getDelete_url());
+                                                ps.setString(6, handleSaveProductImages.indexOf(data) == 0 ? "Y" : "N");
+                                        });
+                } catch (Exception e) {
+                        errMsg += " Exception from handleSaveProductImages - " + e.getMessage();
+                }
+
+                return errMsg;
         }
 
         public GetProductResponse handleGetProducts(int pageNo) {

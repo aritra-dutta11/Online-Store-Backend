@@ -1,7 +1,11 @@
-package com.backend.demoBackend.model.Cart;
+package com.backend.demoBackend.model.Product;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.stereotype.Component;
 
+import com.backend.demoBackend.model.PicrdResponse;
 import com.backend.demoBackend.model.Service.ServiceResult;
 
 import lombok.AllArgsConstructor;
@@ -12,8 +16,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Component
-public class AddToCartResponse {
-    private String prodId;
-    private String cartId;
+public class ProductImageUploadResponse {
+
+    public List<PicrdResponse> picrdResponseList = new ArrayList<>();
     public ServiceResult serviceResult = new ServiceResult();
+
 }

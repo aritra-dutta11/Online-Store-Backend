@@ -11,6 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Component
 public class ServiceResult {
-    private String errorMsg;
-    private String errorCode;
+    private String errorMsg = "";
+    private String errorCode = "";
 }

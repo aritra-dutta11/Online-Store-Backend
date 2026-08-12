@@ -5,6 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.backend.demoBackend.model.ImageUploadResponse;
 import com.backend.demoBackend.model.PicrdResponse;
+import com.backend.demoBackend.model.Product.ProductImageUploadResponse;
 import com.backend.demoBackend.model.Service.ServiceResult;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +47,29 @@ public class ImageUploadService {
             response.serviceResult.setErrorCode("");
         } catch (Exception e) {
             response.serviceResult.setErrorMsg("Exception while uploading image - " + e.getMessage());
+            response.serviceResult.setErrorCode("1");
+        }
+
+        return response;
+    };
+
+    public ProductImageUploadResponse uploadProductsImage(MultipartFile[] images) throws Exception {
+        ProductImageUploadResponse response = new ProductImageUploadResponse();
+        ImageUploadResponse imgUploadres;
+        try {
+            for (int i = 0; i < images.length; i++) {
+                // imgUploadres = new ImageUploadResponse();
+                imgUploadres = uploadImage(images[i]);
+                if (!("".equals(imgUploadres.serviceResult.getErrorMsg()))) {
+                    response.serviceResult.setErrorMsg(imgUploadres.serviceResult.getErrorMsg());
+                    response.serviceResult.setErrorCode((imgUploadres.serviceResult.getErrorCode()));
+                    break;
+                }
+                response.picrdResponseList.add(imgUploadres.picrdResponse);
+
+            }
+        } catch (Exception e) {
+            response.serviceResult.setErrorMsg("Exception from uploadProductsImage - " + e.getMessage());
             response.serviceResult.setErrorCode("1");
         }
 

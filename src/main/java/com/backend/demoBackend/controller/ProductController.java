@@ -58,8 +58,9 @@ public class ProductController {
     public ResponseEntity<CreateProductResponse> addNewProduct(
             @RequestPart("productReq") CreateProductRequest prodRequest,
             @RequestPart("productImages") MultipartFile[] productImages) {
-        // System.out.println(prodRequest.toString());
-        CreateProductResponse prodRes = productService.createNewProduct(prodRequest);
+        // System.out.println(productImages.length);
+        CreateProductResponse prodRes = productService.createNewProduct(prodRequest, productImages);
+        // CreateProductResponse prodRes = new CreateProductResponse();
 
         if ("".equals(prodRes.serviceResult.getErrorMsg())) {
             return ResponseEntity.ok(prodRes);

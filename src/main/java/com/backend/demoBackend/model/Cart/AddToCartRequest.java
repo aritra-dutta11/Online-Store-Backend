@@ -12,5 +12,4 @@ import lombok.NoArgsConstructor;
 @Component
 public class AddToCartRequest {
     private String prodId;
-    private int quantity;
 }

@@ -27,6 +27,6 @@ public class CartController {
         if ("".equals(cartRes.serviceResult.getErrorMsg())) {
             return ResponseEntity.ok(cartRes);
         }
-        return ResponseEntity.badRequest().body(cartRes);
+        return ResponseEntity.ok().body(cartRes);
     }
 }

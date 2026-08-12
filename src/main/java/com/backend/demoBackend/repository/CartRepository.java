@@ -11,7 +11,6 @@ import org.springframework.stereotype.Repository;
 
 import com.backend.demoBackend.model.Cart.AddToCartRequest;
 import com.backend.demoBackend.model.Cart.AddToCartResponse;
-import com.backend.demoBackend.model.User.UserResponse;
 
 @Repository
 public class CartRepository {
@@ -30,14 +29,12 @@ public class CartRepository {
 
             SqlParameterSource params = new MapSqlParameterSource()
                     .addValue("IO_PRODID", req.getProdId())
-                    .addValue("IO_USERID", userId)
-                    .addValue("IO_QUANTITY", req.getQuantity());
+                    .addValue("IO_USERID", userId);
 
             Map<String, Object> result = jdbcCall.execute(params);
             String errMsg = Objects.toString(result.get("O_ERRMSG"), "");
             if (errMsg.isEmpty() || errMsg.equals("")) {
                 response.setProdId((String) result.get("IO_PRODID"));
-                response.setQuantity(((Number) result.get("IO_QUANTITY")).intValue());
                 response.setCartId((String) result.get("O_CARTID"));
             }
             response.serviceResult.setErrorMsg(errMsg);

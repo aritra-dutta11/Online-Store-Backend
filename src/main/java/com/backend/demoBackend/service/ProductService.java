@@ -4,6 +4,7 @@ import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.backend.demoBackend.model.Product.CreateProductRequest;
 import com.backend.demoBackend.model.Product.CreateProductResponse;
@@ -11,6 +12,7 @@ import com.backend.demoBackend.model.Product.FilterRequest;
 import com.backend.demoBackend.model.Product.GetProductResponse;
 import com.backend.demoBackend.model.Product.GetSingleProductResponse;
 import com.backend.demoBackend.model.Product.Product;
+import com.backend.demoBackend.model.Product.ProductImageUploadResponse;
 import com.backend.demoBackend.model.Product.ProductReviewRequest;
 import com.backend.demoBackend.model.Product.ProductReviewResponse;
 import com.backend.demoBackend.repository.ProductRepository;
@@ -20,6 +22,9 @@ public class ProductService {
 
     @Autowired
     private ProductRepository prodRepo;
+
+    @Autowired
+    ImageUploadService imageUploadService;
 
     // List<Product> products = new ArrayList<>(
     // Arrays.asList(new Product(1, "Pixel 10", 60000), new Product(2, "HP Victus",
@@ -54,11 +59,20 @@ public class ProductService {
     // return products;
     // }
 
-    public CreateProductResponse createNewProduct(CreateProductRequest prodRequest) {
+    public CreateProductResponse createNewProduct(CreateProductRequest prodRequest, MultipartFile[] productImages) {
         CreateProductResponse prodRes = new CreateProductResponse();
         // System.out.println(prodRequest.toString());
         try {
-            prodRes = prodRepo.createNewProduct(prodRequest);
+            ProductImageUploadResponse prodImgRes = imageUploadService.uploadProductsImage(productImages);
+            System.out.println(prodImgRes.toString());
+            if ("".equals(prodImgRes.serviceResult.getErrorMsg())) {
+                prodRes = prodRepo.createNewProduct(prodRequest, prodImgRes.picrdResponseList);
+            } else {
+                prodRes.serviceResult
+                        .setErrorMsg(prodImgRes.serviceResult.getErrorMsg());
+                prodRes.serviceResult.setErrorCode(prodImgRes.serviceResult.getErrorCode());
+            }
+
         } catch (Exception e) {
             prodRes.serviceResult.setErrorMsg("Exception from createNewProduct - ProductService : " + e.getMessage());
             prodRes.serviceResult.setErrorCode("1");
