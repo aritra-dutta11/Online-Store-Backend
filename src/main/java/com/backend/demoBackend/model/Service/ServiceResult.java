@@ -13,4 +13,5 @@ import lombok.NoArgsConstructor;
 public class ServiceResult {
     private String errorMsg = "";
     private String errorCode = "";
+    private boolean success = true;
 }

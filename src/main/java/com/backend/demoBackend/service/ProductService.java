@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.backend.demoBackend.model.Cart.GetCartResponse;
 import com.backend.demoBackend.model.Product.CreateProductRequest;
 import com.backend.demoBackend.model.Product.CreateProductResponse;
 import com.backend.demoBackend.model.Product.FilterRequest;
@@ -123,4 +124,5 @@ public class ProductService {
         }
         return prodRes;
     }
+
 }

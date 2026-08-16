@@ -1,4 +1,7 @@
-package com.backend.demoBackend.model.Product;
+package com.backend.demoBackend.model.Cart;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import org.springframework.stereotype.Component;
 
@@ -12,14 +15,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Component
-public class ProductReviewResponse {
-
-    private String productId;
-    private String userId;
-    private String comment;
-    private double rating;
-    private String reviewId;
-    private String createdAt;
+public class GetCartResponse {
+    public List<CartProduct> cartProductList = new ArrayList<>();
+    private String cartId;
     public ServiceResult serviceResult = new ServiceResult();
-
 }

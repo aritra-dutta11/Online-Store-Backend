@@ -16,9 +16,12 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
+import com.backend.demoBackend.RowMapper.CartProductRowMapper;
 import com.backend.demoBackend.RowMapper.ProductReviewRowMapper;
 import com.backend.demoBackend.RowMapper.ProductRowMapper;
 import com.backend.demoBackend.model.PicrdResponse;
+import com.backend.demoBackend.model.Cart.CartProduct;
+import com.backend.demoBackend.model.Cart.GetCartResponse;
 import com.backend.demoBackend.model.Product.CreateProductRequest;
 import com.backend.demoBackend.model.Product.CreateProductResponse;
 import com.backend.demoBackend.model.Product.FilterRequest;
@@ -269,6 +272,7 @@ public class ProductRepository {
                                 response.setComment((String) result.get("IO_COMMENT"));
                                 response.setRating(((Number) result.get("IO_RATING")).doubleValue());
                                 response.setReviewId((String) result.get("O_REVIEWID"));
+                                response.setCreatedAt((String) result.get("O_CREATEDAT"));
                         }
                         response.serviceResult.setErrorMsg(errMsg);
                         response.serviceResult.setErrorCode((String) result.get("O_ERRCODE"));
@@ -324,6 +328,10 @@ public class ProductRepository {
 
                                                                         new ProductReviewRowMapper()),
                                                         new SqlOutParameter(
+                                                                        "O_IMG_CURSOR",
+                                                                        OracleTypes.CURSOR,
+                                                                        (rs, rowNum) -> rs.getString("IMAGE_URL")),
+                                                        new SqlOutParameter(
                                                                         "O_ERRMSG",
                                                                         Types.VARCHAR),
                                                         new SqlOutParameter(
@@ -347,12 +355,15 @@ public class ProductRepository {
 
                         if (errMsg.isEmpty() || errMsg.equals("")) {
                                 // System.out.println("Here");
-                                System.out.println(result.get("O_REV_CURSOR"));
+                                // System.out.println(result.get("O_REV_CURSOR"));
                                 List<ProductReview> productReviews = (List<ProductReview>) result.get("O_REV_CURSOR");
+                                List<String> images = (List<String>) result.get("O_IMG_CURSOR");
+                                response.productDetails.setImages(images);
                                 response.productDetails.reviews = productReviews;
                                 response.productDetails.setProductId((String) result.get("IO_PRODID"));
                                 response.productDetails.setProdName((String) result.get("O_PRODNAME"));
                                 response.productDetails.setPrice(((Number) result.get("O_PRICE")).intValue());
+                                response.productDetails.setQuantity(((Number) result.get("O_QUANTITY")).intValue());
                                 response.productDetails.setProdDesc((String) result.get("O_PRODDESC"));
                                 response.productDetails.setCategory((String) result.get("O_CATEGORY"));
                                 response.productDetails
@@ -373,4 +384,5 @@ public class ProductRepository {
                 return response;
 
         }
+
 }

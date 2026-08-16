@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 
 import com.backend.demoBackend.model.Cart.AddToCartRequest;
 import com.backend.demoBackend.model.Cart.AddToCartResponse;
+import com.backend.demoBackend.model.Cart.GetCartResponse;
 import com.backend.demoBackend.repository.CartRepository;
 
 @Service
@@ -17,10 +18,21 @@ public class CartService {
         try {
             cartRes = cartRepo.handleAddToCart(req, userId);
         } catch (Exception e) {
-            cartRes.serviceResult.setErrorMsg("Exception from createCategory - CategoryService : " + e.getMessage());
+            cartRes.serviceResult.setErrorMsg("Exception from addToCart - CartService : " + e.getMessage());
             cartRes.serviceResult.setErrorCode("1");
         }
 
+        return cartRes;
+    }
+
+    public GetCartResponse getCart(String userId) {
+        GetCartResponse cartRes = new GetCartResponse();
+        try {
+            cartRes = cartRepo.handleGetCart(userId);
+        } catch (Exception e) {
+            cartRes.serviceResult.setErrorMsg("Exception from getCart - CartService : " + e.getMessage());
+            cartRes.serviceResult.setErrorCode("1");
+        }
         return cartRes;
     }
 }
