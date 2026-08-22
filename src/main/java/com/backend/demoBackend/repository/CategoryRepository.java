@@ -14,7 +14,6 @@ import org.springframework.stereotype.Repository;
 
 import com.backend.demoBackend.RowMapper.CategoryRowMapper;
 import com.backend.demoBackend.model.ImageUploadResponse;
-import com.backend.demoBackend.model.PicrdResponse;
 import com.backend.demoBackend.model.Category.Category;
 import com.backend.demoBackend.model.Category.CategoryCreateRequest;
 import com.backend.demoBackend.model.Category.CategoryCreateResponse;

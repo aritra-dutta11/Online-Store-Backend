@@ -10,6 +10,9 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.stereotype.Repository;
 
+import com.backend.demoBackend.model.User.GetUserWalletResponse;
+import com.backend.demoBackend.model.User.SaveUserAddressRequest;
+import com.backend.demoBackend.model.User.SaveUserAddressResponse;
 import com.backend.demoBackend.model.User.User;
 import com.backend.demoBackend.model.User.UserLoginData;
 import com.backend.demoBackend.model.User.UserLoginRequest;
@@ -48,6 +51,57 @@ public class UserRepository {
             response.serviceResult.setErrorCode("1");
         }
 
+        return response;
+    }
+
+    public void createUserWallet(UserResponse userRes) {
+        try {
+            SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withCatalogName("PKG_USERS")
+                    .withProcedureName("PROC_CREATE_USER_WALLET");
+
+            SqlParameterSource params = new MapSqlParameterSource()
+                    .addValue("I_USERID", userRes.getUserId());
+
+            Map<String, Object> result = jdbcCall.execute(params);
+            String errMsg = Objects.toString(result.get("O_ERRMSG"), "");
+
+            userRes.serviceResult.setErrorMsg(errMsg);
+            userRes.serviceResult.setErrorCode((String) result.get("O_ERRCODE"));
+        } catch (Exception e) {
+            userRes.serviceResult.setErrorMsg("Exception from createUserWallet - UserRepository -" + e.getMessage());
+            userRes.serviceResult.setErrorCode("1");
+        }
+
+    }
+
+    public GetUserWalletResponse handleGetWallet(String userId) {
+        GetUserWalletResponse response = new GetUserWalletResponse();
+        try {
+            SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withCatalogName("PKG_USERS")
+                    .withProcedureName("PROC_GET_USER_WALLET");
+
+            SqlParameterSource params = new MapSqlParameterSource()
+                    .addValue("I_USERID", userId);
+
+            Map<String, Object> result = jdbcCall.execute(params);
+            String errMsg = Objects.toString(result.get("O_ERRMSG"), "");
+
+            if (errMsg.isEmpty() || errMsg.equals("")) {
+                response.setWalletId((String) result.get("O_WALLET_ID"));
+                response.setAmount(((Number) result.get("O_AMOUNT")).doubleValue());
+                response.serviceResult.setSuccess(true);
+            } else {
+                response.serviceResult.setSuccess(false);
+            }
+
+            response.serviceResult.setErrorMsg(errMsg);
+            response.serviceResult.setErrorCode((String) result.get("O_ERRCODE"));
+
+        } catch (Exception e) {
+            response.serviceResult.setErrorMsg("Exception from handleGetWallet - UserRepository -" + e.getMessage());
+            response.serviceResult.setErrorCode("1");
+            response.serviceResult.setSuccess(false);
+        }
         return response;
     }
 
@@ -164,5 +218,46 @@ public class UserRepository {
         }
 
         return user;
+    }
+
+    public SaveUserAddressResponse handleSaveUserAddress(SaveUserAddressRequest userRequest, String userId) {
+        SaveUserAddressResponse response = new SaveUserAddressResponse();
+        try {
+            SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withCatalogName("PKG_USERS")
+                    .withProcedureName("PROC_SAVE_USER_ADDRESS");
+
+            SqlParameterSource params = new MapSqlParameterSource()
+                    .addValue("i_Userid", userId)
+                    .addValue("i_Address_Label", userRequest.getAddressLabel())
+                    .addValue("i_Addressownername", userRequest.getAddressOwnerName())
+                    .addValue("i_Houseno", userRequest.getHouseNo())
+                    .addValue("i_Streetname", userRequest.getStreetName())
+                    .addValue("i_City", userRequest.getCityOrTown())
+                    .addValue("i_District", userRequest.getDistrict())
+                    .addValue("i_State", userRequest.getStateName())
+                    .addValue("i_Country", userRequest.getCountry())
+                    .addValue("i_Pincode", userRequest.getPincode())
+                    .addValue("i_Phoneno", userRequest.getPhoneNo());
+
+            Map<String, Object> result = jdbcCall.execute(params);
+            // System.out.println(result);
+            String errMsg = Objects.toString(result.get("O_ERRMSG"), "");
+            // System.out.println(result.get("O_ADDRESS_ID"));
+            if (errMsg.isEmpty() || errMsg.equals("")) {
+                response.setAddressId((String) result.get("O_ADDRESS_ID"));
+                response.serviceResult.setSuccess(true);
+            } else {
+                response.serviceResult.setSuccess(false);
+            }
+            response.serviceResult.setErrorMsg(errMsg);
+            response.serviceResult.setErrorCode((String) result.get("O_ERRCODE"));
+        } catch (Exception e) {
+            response.serviceResult
+                    .setErrorMsg("Exception from handleSaveUserAddress - UserRepository -" + e.getMessage());
+            response.serviceResult.setSuccess(false);
+            response.serviceResult.setErrorCode("1");
+        }
+
+        return response;
     }
 }

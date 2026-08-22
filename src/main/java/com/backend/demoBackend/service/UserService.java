@@ -5,6 +5,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.backend.demoBackend.model.JWTModel;
+import com.backend.demoBackend.model.User.GetUserWalletResponse;
+import com.backend.demoBackend.model.User.SaveUserAddressRequest;
+import com.backend.demoBackend.model.User.SaveUserAddressResponse;
 import com.backend.demoBackend.model.User.UserLoginData;
 import com.backend.demoBackend.model.User.UserLoginRequest;
 import com.backend.demoBackend.model.User.UserLoginResponse;
@@ -28,6 +31,11 @@ public class UserService {
         try {
             userInput.setPassword(encoder.encode(userInput.getPassword()));
             userOutput = userRepo.createNewUser(userInput);
+
+            if ("".equals(userOutput.serviceResult.getErrorMsg())) {
+                if (userOutput.getUserId() != null && "".equals(userOutput.getUserId()))
+                    userRepo.createUserWallet(userOutput);
+            }
         } catch (Exception e) {
             userOutput.serviceResult.setErrorMsg("Exception from createNewUser - UserService " + e.getMessage());
             userOutput.serviceResult.setErrorCode("1");
@@ -125,5 +133,69 @@ public class UserService {
             userOutput.serviceResult.setErrorCode("1");
         }
         return userOutput;
+    }
+
+    public GetUserWalletResponse getUserWallet(String userId) {
+        GetUserWalletResponse response = new GetUserWalletResponse();
+        try {
+            response = userRepo.handleGetWallet(userId);
+        } catch (Exception e) {
+            response.serviceResult.setErrorMsg("Exception from getUserWallet - UserService " + e.getMessage());
+            response.serviceResult.setErrorCode("1");
+            response.serviceResult.setSuccess(false);
+        }
+        return response;
+    }
+
+    public SaveUserAddressResponse saveUserAddress(SaveUserAddressRequest req, String userId) {
+        SaveUserAddressResponse response = new SaveUserAddressResponse();
+        String strValidationMsg = "";
+        try {
+            if ("".equals(req.getAddressLabel())) {
+                strValidationMsg += "Address Label cannot be blank!";
+            }
+
+            if ("".equals(req.getAddressOwnerName())) {
+                strValidationMsg += "Address Owner Name cannot be blank!";
+            }
+
+            if ("".equals(req.getHouseNo())) {
+                strValidationMsg += "House/Apartment No. cannot be blank!";
+            }
+
+            if ("".equals(req.getStreetName())) {
+                strValidationMsg += "Street Name cannot be blank!";
+            }
+
+            if ("".equals(req.getCityOrTown())) {
+                strValidationMsg += "City/Town cannot be blank!";
+            }
+
+            if ("".equals(req.getStateName())) {
+                strValidationMsg += "State cannot be blank!";
+            }
+
+            if ("".equals(req.getPincode())) {
+                strValidationMsg += "Pincode cannot be blank!";
+            }
+
+            if ("".equals(req.getPhoneNo())) {
+                strValidationMsg += "Phone No cannot be blank!";
+            }
+
+            if ("".equals(strValidationMsg)) {
+                response = userRepo.handleSaveUserAddress(req, userId);
+            } else {
+                response.serviceResult.setErrorMsg(strValidationMsg);
+                response.serviceResult.setErrorCode("1");
+                response.serviceResult.setSuccess(false);
+            }
+
+        } catch (Exception e) {
+            response.serviceResult.setErrorMsg("Exception from saveUserAddress - UserService " + e.getMessage());
+            response.serviceResult.setErrorCode("1");
+            response.serviceResult.setSuccess(false);
+        }
+        return response;
     }
 }

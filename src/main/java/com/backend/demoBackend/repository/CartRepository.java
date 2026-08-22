@@ -19,7 +19,11 @@ import com.backend.demoBackend.RowMapper.CartProductRowMapper;
 import com.backend.demoBackend.model.Cart.AddToCartRequest;
 import com.backend.demoBackend.model.Cart.AddToCartResponse;
 import com.backend.demoBackend.model.Cart.CartProduct;
+import com.backend.demoBackend.model.Cart.DeleteCartRequest;
+import com.backend.demoBackend.model.Cart.DeleteCartResponse;
 import com.backend.demoBackend.model.Cart.GetCartResponse;
+import com.backend.demoBackend.model.Cart.UpdateCartRequest;
+import com.backend.demoBackend.model.Cart.UpdateCartResponse;
 
 import oracle.jdbc.OracleTypes;
 
@@ -51,7 +55,7 @@ public class CartRepository {
             response.serviceResult.setErrorMsg(errMsg);
             response.serviceResult.setErrorCode((String) result.get("O_ERRCODE"));
         } catch (Exception e) {
-            response.serviceResult.setErrorMsg("Exception from createNewUser - UserRepository -" + e.getMessage());
+            response.serviceResult.setErrorMsg("Exception from handleAddToCart - CartRepository -" + e.getMessage());
             response.serviceResult.setErrorCode("1");
         }
 
@@ -89,13 +93,13 @@ public class CartRepository {
 
             Map<String, Object> result = new HashMap<String, Object>();
             try {
-                System.out.println("Hello 1");
+                // System.out.println("Hello 1");
 
                 result = jdbcCall.execute(params);
-                System.out.println("Hello 3");
+                // System.out.println("Hello 3");
 
             } catch (DataAccessException e) {
-                System.out.println("Hello 2");
+                // System.out.println("Hello 2");
                 System.out.println(e.getLocalizedMessage());
             }
 
@@ -123,6 +127,64 @@ public class CartRepository {
 
         return response;
 
+    }
+
+    public UpdateCartResponse handleUpdateCart(UpdateCartRequest req) {
+        UpdateCartResponse response = new UpdateCartResponse();
+
+        try {
+            SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withCatalogName("PKG_PRODUCTS")
+                    .withProcedureName("PROC_UPADTE_CART");
+
+            SqlParameterSource params = new MapSqlParameterSource()
+                    .addValue("IO_PRODID", req.getProdId())
+                    .addValue("IO_CARTID", req.getCartId())
+                    .addValue("I_QUANTITY", req.getQuantity());
+
+            Map<String, Object> result = jdbcCall.execute(params);
+            String errMsg = Objects.toString(result.get("O_ERRMSG"), "");
+            if (errMsg.isEmpty() || errMsg.equals("")) {
+                response.setProdId((String) result.get("IO_PRODID"));
+                response.setCartId((String) result.get("IO_CARTID"));
+                response.serviceResult.setSuccess(true);
+            }
+            response.serviceResult.setErrorMsg(errMsg);
+            response.serviceResult.setErrorCode((String) result.get("O_ERRCODE"));
+        } catch (Exception e) {
+            response.serviceResult.setErrorMsg("Exception from handleUpdateCart - CartRepository -" + e.getMessage());
+            response.serviceResult.setErrorCode("1");
+            response.serviceResult.setSuccess(false);
+        }
+
+        return response;
+    }
+
+    public DeleteCartResponse handleDeleteCart(DeleteCartRequest req, String userId) {
+        DeleteCartResponse response = new DeleteCartResponse();
+
+        try {
+            SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withCatalogName("PKG_PRODUCTS")
+                    .withProcedureName("PROC_DELETE_CART");
+
+            SqlParameterSource params = new MapSqlParameterSource()
+                    .addValue("IO_USERID", userId)
+                    .addValue("IO_CARTID", req.getCartId());
+
+            Map<String, Object> result = jdbcCall.execute(params);
+            String errMsg = Objects.toString(result.get("O_ERRMSG"), "");
+            if (errMsg.isEmpty() || errMsg.equals("")) {
+                response.setCartId(req.getCartId());
+                response.serviceResult.setSuccess(true);
+            }
+            response.serviceResult.setErrorMsg(errMsg);
+            response.serviceResult.setErrorCode((String) result.get("O_ERRCODE"));
+        } catch (Exception e) {
+            response.serviceResult.setErrorMsg("Exception from handleDeleteCart - CartRepository -" + e.getMessage());
+            response.serviceResult.setErrorCode("1");
+            response.serviceResult.setSuccess(false);
+        }
+
+        return response;
     }
 
 }
