@@ -3,12 +3,16 @@ package com.backend.demoBackend.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.backend.demoBackend.model.User.DeleteUserAddressRequest;
+import com.backend.demoBackend.model.User.DeleteUserAddressResponse;
+import com.backend.demoBackend.model.User.GetUserAddressResponse;
 import com.backend.demoBackend.model.User.GetUserWalletResponse;
 import com.backend.demoBackend.model.User.SaveUserAddressRequest;
 import com.backend.demoBackend.model.User.SaveUserAddressResponse;
@@ -65,6 +69,27 @@ public class UserController {
         SaveUserAddressResponse userResponse = userService.saveUserAddress(req, auth.getName());
 
         if ("".equals(userResponse.serviceResult.getErrorMsg())) {
+            return ResponseEntity.ok(userResponse);
+        }
+        return ResponseEntity.ok(userResponse);
+    }
+
+    @GetMapping("/address/get")
+    public ResponseEntity<GetUserAddressResponse> getUserAddress(Authentication auth) {
+        GetUserAddressResponse userResponse = userService.getUserAddress(auth.getName());
+
+        if (userResponse.serviceResult.isSuccess()) {
+            return ResponseEntity.ok(userResponse);
+        }
+        return ResponseEntity.ok(userResponse);
+    }
+
+    @DeleteMapping("/address/delete")
+    public ResponseEntity<DeleteUserAddressResponse> deleteUserAddress(@RequestBody DeleteUserAddressRequest req,
+            Authentication auth) {
+        DeleteUserAddressResponse userResponse = userService.deleteUserAddress(req, auth.getName());
+
+        if (userResponse.serviceResult.isSuccess()) {
             return ResponseEntity.ok(userResponse);
         }
         return ResponseEntity.ok(userResponse);

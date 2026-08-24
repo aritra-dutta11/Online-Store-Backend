@@ -5,6 +5,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.backend.demoBackend.model.JWTModel;
+import com.backend.demoBackend.model.User.DeleteUserAddressRequest;
+import com.backend.demoBackend.model.User.DeleteUserAddressResponse;
+import com.backend.demoBackend.model.User.GetUserAddressResponse;
 import com.backend.demoBackend.model.User.GetUserWalletResponse;
 import com.backend.demoBackend.model.User.SaveUserAddressRequest;
 import com.backend.demoBackend.model.User.SaveUserAddressResponse;
@@ -13,7 +16,7 @@ import com.backend.demoBackend.model.User.UserLoginRequest;
 import com.backend.demoBackend.model.User.UserLoginResponse;
 import com.backend.demoBackend.model.User.UserRequest;
 import com.backend.demoBackend.model.User.UserResponse;
-import com.backend.demoBackend.repository.UserRepository;;
+import com.backend.demoBackend.repository.UserRepository;
 
 @Service
 public class UserService {
@@ -183,6 +186,10 @@ public class UserService {
                 strValidationMsg += "Phone No cannot be blank!";
             }
 
+            if (!("".equals(req.getPhoneNo())) && (!(req.getPhoneNo().substring(3).length() == 10))) {
+                strValidationMsg += "Not a valid phone no.!";
+            }
+
             if ("".equals(strValidationMsg)) {
                 response = userRepo.handleSaveUserAddress(req, userId);
             } else {
@@ -198,4 +205,29 @@ public class UserService {
         }
         return response;
     }
+
+    public GetUserAddressResponse getUserAddress(String userId) {
+        GetUserAddressResponse response = new GetUserAddressResponse();
+        try {
+            response = userRepo.handleGetAddressList(userId);
+        } catch (Exception e) {
+            response.serviceResult.setErrorMsg("Exception from getUserWallet - UserService " + e.getMessage());
+            response.serviceResult.setErrorCode("1");
+            response.serviceResult.setSuccess(false);
+        }
+        return response;
+    }
+
+    public DeleteUserAddressResponse deleteUserAddress(DeleteUserAddressRequest req, String userId) {
+        DeleteUserAddressResponse response = new DeleteUserAddressResponse();
+        try {
+            response = userRepo.handleDeleteUserAddress(req, userId);
+        } catch (Exception e) {
+            response.serviceResult.setErrorMsg("Exception from deleteUserAddress - UserService " + e.getMessage());
+            response.serviceResult.setErrorCode("1");
+            response.serviceResult.setSuccess(false);
+        }
+        return response;
+    }
+
 }

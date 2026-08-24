@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Component
-public class SaveUserAddressRequest {
+public class Address {
     private String houseNo;
     private String streetName;
     private String cityOrTown;
@@ -21,5 +21,5 @@ public class SaveUserAddressRequest {
     private String stateName;
     private String addressLabel;
     private String addressOwnerName;
-
+    private String addressId;
 }
