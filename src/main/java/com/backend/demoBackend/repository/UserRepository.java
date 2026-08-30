@@ -20,6 +20,8 @@ import com.backend.demoBackend.RowMapper.AddressRowMapper;
 import com.backend.demoBackend.RowMapper.CartProductRowMapper;
 import com.backend.demoBackend.model.Cart.CartProduct;
 import com.backend.demoBackend.model.Cart.GetCartResponse;
+import com.backend.demoBackend.model.Order.PlaceOrderRequest;
+import com.backend.demoBackend.model.Order.PlaceOrderResponse;
 import com.backend.demoBackend.model.User.Address;
 import com.backend.demoBackend.model.User.DeleteUserAddressRequest;
 import com.backend.demoBackend.model.User.DeleteUserAddressResponse;
@@ -374,5 +376,38 @@ public class UserRepository {
         }
 
         return response;
+    }
+
+    public void handleUpdateWallet(PlaceOrderRequest request, PlaceOrderResponse response, String userId,
+            double totalPayableAmt) {
+
+        try {
+
+            SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withCatalogName("PKG_USERS")
+                    .withProcedureName("PROC_UPDATE_WALLET");
+
+            SqlParameterSource params = new MapSqlParameterSource()
+                    .addValue("I_USER_ID", userId)
+                    .addValue("I_WALLET_ID", request.walletDetails.getWalletId())
+                    .addValue("I_TOTAL_PAYABLE_AMT", totalPayableAmt);
+
+            Map<String, Object> result = jdbcCall.execute(params);
+            // System.out.println(result);
+            String errMsg = Objects.toString(result.get("O_ERRMSG"), "");
+            // System.out.println(result.get("O_ADDRESS_ID"));
+            if (errMsg.isEmpty() || errMsg.equals("")) {
+                response.serviceResult.setSuccess(true);
+            } else {
+                response.serviceResult.setSuccess(false);
+            }
+            response.serviceResult.setErrorMsg(errMsg);
+            response.serviceResult.setErrorCode((String) result.get("O_ERRCODE"));
+        } catch (Exception e) {
+            response.serviceResult
+                    .setErrorMsg("Exception from handleUpdateWallet - UserRepository -" + e.getMessage());
+            response.serviceResult.setSuccess(false);
+            response.serviceResult.setErrorCode("1");
+        }
+
     }
 }

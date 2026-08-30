@@ -24,6 +24,8 @@ import com.backend.demoBackend.model.Cart.DeleteCartResponse;
 import com.backend.demoBackend.model.Cart.GetCartResponse;
 import com.backend.demoBackend.model.Cart.UpdateCartRequest;
 import com.backend.demoBackend.model.Cart.UpdateCartResponse;
+import com.backend.demoBackend.model.Order.PlaceOrderRequest;
+import com.backend.demoBackend.model.Order.PlaceOrderResponse;
 
 import oracle.jdbc.OracleTypes;
 
@@ -185,6 +187,35 @@ public class CartRepository {
         }
 
         return response;
+    }
+
+    public void handleRemoveCartAfterOrder(PlaceOrderRequest request, PlaceOrderResponse response, String userId) {
+
+        try {
+            SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withCatalogName("PKG_PRODUCTS")
+                    .withProcedureName("PROC_REMOVE_CART_AFTER_ORDER");
+
+            SqlParameterSource params = new MapSqlParameterSource()
+                    .addValue("I_USERID", userId)
+                    .addValue("I_CARTID", request.getCartId());
+
+            Map<String, Object> result = jdbcCall.execute(params);
+            String errMsg = Objects.toString(result.get("O_ERRMSG"), "");
+            if (errMsg.isEmpty() || errMsg.equals("")) {
+                // response.setCartId(req.getCartId());
+                response.serviceResult.setSuccess(true);
+            } else {
+                response.serviceResult.setSuccess(false);
+            }
+            response.serviceResult.setErrorMsg(errMsg);
+            response.serviceResult.setErrorCode((String) result.get("O_ERRCODE"));
+        } catch (Exception e) {
+            response.serviceResult
+                    .setErrorMsg("Exception from handleRemoveCartAfterOrder - CartRepository -" + e.getMessage());
+            response.serviceResult.setErrorCode("1");
+            response.serviceResult.setSuccess(false);
+        }
+
     }
 
 }

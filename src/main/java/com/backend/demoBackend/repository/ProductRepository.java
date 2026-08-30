@@ -22,6 +22,8 @@ import com.backend.demoBackend.RowMapper.ProductRowMapper;
 import com.backend.demoBackend.model.PicrdResponse;
 import com.backend.demoBackend.model.Cart.CartProduct;
 import com.backend.demoBackend.model.Cart.GetCartResponse;
+import com.backend.demoBackend.model.Order.PlaceOrderRequest;
+import com.backend.demoBackend.model.Order.PlaceOrderResponse;
 import com.backend.demoBackend.model.Product.CreateProductRequest;
 import com.backend.demoBackend.model.Product.CreateProductResponse;
 import com.backend.demoBackend.model.Product.FilterRequest;
@@ -382,6 +384,36 @@ public class ProductRepository {
                 }
 
                 return response;
+
+        }
+
+        public void handleUpdateProductStock(PlaceOrderRequest request, PlaceOrderResponse response, String userId) {
+
+                try {
+                        SimpleJdbcCall jdbcCall = new SimpleJdbcCall(jdbcTemplate).withCatalogName("PKG_PRODUCTS")
+                                        .withProcedureName("PROC_UPDATE_PRODUCT_STOCK");
+
+                        SqlParameterSource params = new MapSqlParameterSource()
+                                        .addValue("I_USERID", userId)
+                                        .addValue("I_CARTID", request.getCartId());
+
+                        Map<String, Object> result = jdbcCall.execute(params);
+                        String errMsg = Objects.toString(result.get("O_ERRMSG"), "");
+
+                        if (errMsg.isEmpty() || errMsg.equals("")) {
+                                response.serviceResult.setSuccess(true);
+                        } else {
+                                response.serviceResult.setSuccess(false);
+                        }
+                        response.serviceResult.setErrorMsg(errMsg);
+                        response.serviceResult.setErrorCode((String) result.get("O_ERRCODE"));
+                } catch (Exception e) {
+                        response.serviceResult.setSuccess(false);
+                        response.serviceResult
+                                        .setErrorMsg("Exception from handleUpdateProductStock - ProductRepository -"
+                                                        + e.getMessage());
+                        response.serviceResult.setErrorCode("1");
+                }
 
         }
 
